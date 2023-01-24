@@ -1,0 +1,45 @@
+<!DOCTYPE html><!--Definicion de tipo de documento-->
+<html lang="en"><!--Apertura de la paguina html-->
+<head><!--Encavezado de la pagina html-->
+    <meta charset="UTF-8"><!--Codificacionde Caracteres especiales-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"><!--IE-->
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Primer Proyecto en HTML</title>
+</head>
+<body><!--Contenido de la pagina html-->
+    <h1>Bienvenidos a programacion IV</h1>
+    <h3>Hola Mundo</h3>
+    <p>Esto es parrafo: Aqui van a ir muchas lineas <br>
+       de texto
+    </p>
+    <form id="frmAlumnos">
+        <label for="txtCodigoAlumno">Codigo</label>
+        <input required title="Ingrese un codigo de estudiante valido"
+           pattern="^[US|SM]{2}[LE]{2}[0-9]{6}" 
+           type="text" name="txtCodigoAlumno" id="txtCodigoAlumno">
+            
+
+        <label for="txtNombreAlumno">Nombre:</label>
+        <input rquired type="[A-ZÑ ]{3,75}" 
+           type="text" name="txtNombreAlumno" id="txtNombreAlumno">
+           <br>
+
+        <input type="submit"  value="Guardar Datos">
+
+       
+    </form>
+
+    <script>
+        //DOM->Modelo de objetos del documento 
+        let $frmAlumno = document.querySelector("#frmAlumnos")
+        console.log($frmAlumno);
+
+        $frmAlumno.addEventListener('submit', e=>{
+            e.preventDefault();
+
+            console.log( txtCodigoAlumno.value, txtNombreAlumno.value);
+        });
+    </script>
+    
+</body>
+</html>
