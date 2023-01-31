@@ -13,7 +13,7 @@
        
     </form>
     <div class="container" id="app">
-        <div class="card border-primary" style="max-width: 36rem;">
+        <div class="card border-secondary" style="max-width: 58rem;">
             <div class="card-header bg-primary text-white">REGISTRO ALUMNOS</div>
             <div class="card-body">
                 <form id="frmAlumno" @submit.prevent="guardarAlumno"> 
@@ -30,11 +30,47 @@
                        </div>
                     </div>
                     <div class="row p-1">
+                        <div class="col-3 col-md-2">DIRECCION:</div>
+                        <div class="col-9 col-md-6">
+                             <input class="form-control" type="text"  v-model="alumno.direccion" name="txtDireccionAlumno"  id="txtDireccionAlumno">
+                        </div>
+                     </div>
+                     <div class="row p-1">
+                        <div class="col-3 col-md-2">MUNICIPIO:</div>
+                        <div class="col-9 col-md-6">
+                             <input class="form-control" type="text"  v-model="alumno.municipo" name="txtMunicipioAlumno"  id="txtMunicipioAlumno">
+                        </div>
+                     </div>
+                     <div class="row p-1">
+                        <div class="col-3 col-md-2">DEPARTAMENTO:</div>
+                        <div class="col-9 col-md-6">
+                             <input class="form-control" type="text"  v-model="alumno.departamento" name="txtDepartamentoAlumno"  id="txtDepartamentoAlumno">
+                        </div>
+                     </div>
+                     <div class="row p-1">
+                        <div class="col-3 col-md-2">TELEFONO:</div>
+                        <div class="col-9 col-md-6">
+                             <input class="form-control" type="text"  v-model="alumno.telefono" name="txtTelefonoAlumno"  id="txtTelefonoAlumno">
+                        </div>
+                     </div>
+                     <div class="row p-1">
+                        <div class="col-3 col-md-2">FECHA DE NACIMIENTO:</div>
+                        <div class="col-9 col-md-6">
+                             <input class="form-control" type="date"  v-model="alumno.fechan" name="txtFechaNAlumno"  id="txtFechaNAlumno">
+                        </div>
+                     </div>
+                     <div class="row p-1">
+                        <div class="col-3 col-md-2">SEXO:</div>
+                        <div class="col-9 col-md-6">
+                             <input class="form-control" type="text"  v-model="alumno.sexo" name="txtSexoAlumno"  id="txtSexoAlumno">
+                        </div>
+                     </div>
+                    <div class="row p-1">
                         <div class="col col md-6">
-                            <input class="btn btn-success" type="submit" value="Guardar Datos">
+                            <input class="btn btn-dark" type="submit" value="Guardar Datos">
                         </div>
                         <div class="col col md-6">
-                            <input class="btn btn-warning" type="reset" value="Nuevo Registro">
+                            <input class="btn btn-info" type="reset" value="Nuevo Registro">
                         </div>
                     </div>
                     </div>
@@ -54,7 +90,13 @@
                      alumno:{
                         id:0,
                         codigo:'',
-                        nombre:''
+                        nombre:'',
+                        direccion:'',
+                        municipio:'',
+                        departamento:'',
+                        telefono:'',
+                        fechan:'',
+                        sexo:''
                      }
                 }
             },
