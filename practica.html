@@ -84,6 +84,9 @@
         createApp({
             data(){
                 return{
+                    bucar: '',
+                    alumnos:[],
+                    accion : 'nuevo',
                      alumno:{
                         id:0,
                         codigo:'',
@@ -98,11 +101,50 @@
                 }
             },
             methods:{
+                nuevoAlumno(){
+                    this.accion = 'nuevo';
+                    this.alumno.idAlumno = '';
+                    this.alumno.alumno = '';
+                    this.alumno.nombre = '';
+                },
+
+                modificarAlumno(alumno){
+                    this.accion = 'modificar';
+                    this.alumno = alumno;
+                },
+
                 guardarAlumno(){
-                    localStorage.setItem('alumnos',JSON.stringify(this.alumno));
+                    this.listarAlumnos();
+                    if( this.accion==='nuevo' ){
+                        this.alumno.idAlumno = new Date().getTime().toString(16);//las cantidad milisegundos y lo convierte en hexadecimal
+                        this.alumnos.push( JSON.parse(JSON.stringify(this.alumno)) );
+                    }else if(this.accion==='modificar'){
+                        //hacer la busqueda y modificar el registro
+                        let index = this.alumnos.findIndex(alumno=>alumno.idalumno==this.alumno.idAlumno);
+                        this.alumnos[index] = JSON.parse(JSON.stringify(this.alumno));
+                    }else if(this.accion==='eliminar'){
+                        let index = this.alumnos.findIndex(alumno=>alumno.idAlumno==this.alumno.idAlumno);
+                        this.alumnos.splice(index, 1);
+                    }
+                    localStorage.setItem('alumnos', JSON.stringify(this.alumnos));
+                    this.nuevoAlumno();
+                },
+                eliminarAlumno(alumno){
+                    if( confirm(`Esta seguro de eliminar el alumno ${alumno.nombre}?`) ){
+                        this.accion="eliminar";
+                        this.alumno = alumno;
+                        this.guardarAlumno();
+                    }
+                },
+                listarAlumnos(){
+                    this.alumnos = JSON.parse( localStorage.getItem('alumnos') || "[]" )
+                        .filter(alumno=>alumno.nombre.toLowerCase().indexOf(this.buscar.toLowerCase())>-1);
                 }
-            } 
-            
+            },
+            created(){
+                this.listarAlumnos();
+            }
+                
         
         }).mount('#app')
     </script>
