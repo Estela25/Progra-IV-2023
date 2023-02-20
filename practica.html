@@ -66,17 +66,17 @@
 
                             <div class="row p-1">
                                 <div class="col col-md-6">
-                                    <input class="btn btn-success" type="submit" value="Guardar Datos">
+                                    <input class="btn btn-dark" type="submit" value="Guardar Datos">
                                 </div>
                                 <div class="col col-md-6">
-                                    <input class="btn btn-warning" type="reset" value="Nuevo Registro">
+                                    <input class="btn btn-info" type="reset" value="Nuevo Registro">
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-12">
+            <div class="col-12 col-md-10">
                 <div class="card text-bg-light">
                     <div class="card-header">CONSULTA DE ALUMNOS</div>
                     <div class="card-body">
@@ -131,7 +131,7 @@
                     alumnos:[],
                     accion : 'nuevo',
                     alumno:{
-                        idAlumno:0,
+                        idAlumno:1,
                         codigo:'',
                         nombre:'',
                         direccion:'',
@@ -162,62 +162,78 @@
                     this.alumno = alumno;
                 },
                 guardarAlumno(){
-                    let store = this.abrirStore('tblalumno','readwrite');
-                    if( this.accion==='nuevo' ){
-                        this.alumno.idAlumno = new Date().getTime().toString(16);//las cantidad milisegundos y lo convierte en hexadecimal
-                        
-                    }
-                    let query = store.put(JSON.parse(JSON.stringify(this.alumno)));
-                    query.onsuccess = resp=>{
-                    this.nuevoAlumno();
-
-                    };  
-                    query.onerror = err=>{
-                        console.error('Error al guardar alumno', err);
-                    };
+                    if( this.alumno.nombre=='' || 
+                this.alumno.codigo=='' ){
+                console.log( 'Por favor ingrese los datos correspondientes' );
+                return;
+            }
+            let store = this.abrirStore("tblalumnos", 'readwrite');
+            if( this.accion==='nuevo' ){
+                this.alumno.idAlumno = new Date().getTime().toString(16);//las cantidad milisegundos y lo convierte en hexadecimal   
+            }
+            let query = store.put( JSON.parse( JSON.stringify(this.alumno) ));
+            query.onsuccess = resp=>{
+                this.nuevoAlumno();
+                this.listarAlumnos();
+            };
+            query.onerror = err=>{
+                console.error('ERROR al guardar docente', err);
+            };
                 },
                 eliminarAlumno(alumno){
                     if( confirm(`Esta seguro de eliminar el alumno ${alumno.nombre}?`) ){
-                        this.accion="eliminar";
-                        this.alumno = alumno;
-                        this.guardarAlumno();
+                        let store = this.abrirStore('tblalumnos', 'readwrite'),
+                            req = store.delete(alumno.idAlumno);
+                        req.onsuccess = res=>{
+                            this.listarAlumnos();
+                        };
+                        eq.onerror = err=>{
+                            console.error('ERROR al guardar alumno');
+                        };
                     }
                 },
                 listarAlumnos(){
-                     let store = this.abrirStore('tblalumnos','readonly'),
-                     data = store.getAll();
-                data.onsuccess = resp=>{
-                    this,alumnos = data.result;
-                }
-
+                    let store = this.abrirStore('tblalumnos', 'readonly'),
+                        data = store.getAll();
+                     data.onsuccess = resp=>{
+                        this.alumnos = data.result
+                            .filter(alumno=>alumno.nombre.toLowerCase().indexOf(this.buscar.toLowerCase())>-1 || 
+                                alumno.codigo.indexOf(this.buscar)>-1);
+                    };
                 },
             
             abrirBD(){
-              let indexDB= indexedDB.open('db_sistema_academico',1);
-              indexDB.onupgradeneeded = e=>{
-                let req = e.target.result,
-                    tblAlumnos= req.createObjectStore('tblalumnos',{keyPath:'idAlumno'}),
-                    tblmaterias= req.createObjectStore('tblmaterias',{keyPath:'idMateria'});
-                tblalumnos.createIndex('idAlumno', 'idAlumno', {unique: true});
-                tblalumnos.createIndex('codigo', 'codigo', {unique: true});
-              
+                let indexDB = indexedDB.open('db_sistema_academico', 1);
+                    indexDB.onupgradeneeded = e => {
+                        let req = e.target.result,
+
+                            tblalumnos = req.createObjectStore('tblalumnos', {
+                                keyPath: 'idAlumno'
+                            }),
+                            tblmaterias = req.createObjectStore('tblmaterias', {
+                                keyPath: 'idMateria'
+                            });
+
+                        tblalumnos.createIndex('idAlumnos', 'idAlumno', {
+                            unique: true
+                        });
+                        tblalumnos.createIndex('codigo', 'codigo', {
+                            unique: true
+                        });
+                    };
+                    indexDB.onsuccess = e => {
+                        db = e.target.result;
+                        this.listarAlumnos();
+                    };
+                    indexDB.onerror = e => {
+                        console.error('ERROR al crear, abrir la BD', e);
+                    };
+                },
+                abrirStore(store, modo) {
+                    let ltx = db.transaction(store, modo);
+                    return ltx.objectStore(store);
+                }
             },
-
-            indexDB.onsuccess = e=>{
-                this.db = e.target.result;
-                this.listarAlumnos();
-            };
-            indexDB.onerror = e=>{
-                console.error('Error al crear, abrir la DB', e);
-            };
-
-        },
-        abrirStore(store, modo){
-            let ltx = this.db.transaction (store, modo);
-                return ltx.objectStore(store);
-        }
-        
-     },
         
     created(){
         this.abrirBD();
@@ -225,6 +241,6 @@
      }
 
     }).mount('#app')
-    </script>
+</script>
 </body>
 </html>
