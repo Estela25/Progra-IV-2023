@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div class="card text-bg-secondary mb-3" style="max-width: 18rem;">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <title>Primer examen parcial</title>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="row">
+            <div class="col-12 col-md-12">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">REGISTRO DE AUTORES</div>
+                    <div class="card-body">
+                        <form id="frmAutor" @submit.prevent="guardarAutor" @reset.prevent="nuevoAutor()">
+                            <div class="row p-1">
+                                <div class="col-3 col-md-2">CODIGO:</div>
+                                <div class="col-9 col-md-3">
+                                    <input class="form-control" type="text" v-model="autor.codigo" name="txtCodigoAutor" id="txtCodigoAutor">
+                                </div>
+                            </div>
+                            <div class="row p-1">
+                                <div class="col-3 col-md-2">NOMBRE:</div>
+                                <div class="col-9 col-md-6">
+                                    <input class="form-control" type="text" v-model="autor.nombre" name="txtNombreAutor" id="txtNombreAutor">
+                                </div>
+                            </div>
+                            <div class="row p-1">
+                                <div class="col-3 col-md-2">PAIS:</div>
+                                <div class="col-9 col-md-6">
+                                    <input class="form-control" type="text" v-model="autor.pais" name="txtPaisAutor" id="txtPaisAutor">
+                                </div>
+                            </div>
+                            <div class="row p-1">
+                                <div class="col-3 col-md-2">TELEFONO:</div>
+                                <div class="col-9 col-md-6">
+                                    <input class="form-control" type="text" v-model="autor.telefono" name="txtTelefonoAutor" id="txtTelefonoAutor">
+                                </div>
+                            </div>
+                            <div class="row p-1">
+                                <div class="col col-md-6">
+                                    <input class="btn btn-dark" type="submit" value="Guardar Datos">
+                                </div>
+                                <div class="col col-md-6">
+                                    <input class="btn btn-info" type="reset" value="Nuevo Registro">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-10">
+                <div class="card text-bg-light">
+                    <div class="card-header">CONSULTA DE AUTORES</div>
+                    <div class="card-body">
+                        <form>
+                            <table class="table table-dark table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>BUSCAR:</th>
+                                        <th colspan="2"><input type="text" @keyup="listarAutores()" v-model="buscar" 
+                                            class="form-control" placeholder="Busar por nombre" ></th>
+                                    </tr>
+                                    <tr>
+                                        <th>CODIGO</th>
+                                        <th>NOMBRE</th>
+                                        <th>PAIS</th>
+                                        <th>TELEFONO</th>
+                                        <th colspan="2">TELEFONO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="autor in autores" @click='modificarAutor(autor)' :key="autor.idAutor">
+                                        <td>{{autor.codigo}}</td>
+                                        <td>{{autor.nombre}}</td>
+                                        <td>{{autor.pais}}</td>
+                                        <td>{{autor.telefono}}</td>
+                                        <td><button @click.prevent="eliminarAutor(autor)" class="btn btn-danger">Eliminar</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp } = Vue;
+            createApp({
+                data() {
+                    return {
+                        db :'', 
+                        buscar: '',
+                        autor:[],
+                        accion : 'nuevo',
+                        autor:{
+                            idAutor:1,
+                            codigo:'',
+                            nombre:'',
+                            pais:'',
+                            telefono:''    
+                        }
+                    }
+                },
+                methods:{
+                    nuevoAutor(){
+                        this.accion = 'nuevo';
+                        this.autor.idautor = '';
+                        this.autor.codigo = '';
+                        this.autor.nombre = '';
+                        this.autor.pais = '';
+                        this.autor.telefono = '';
+                   
+                    },
+                    modificarAutor(autor){
+                        this.accion = 'modificar';
+                        this.autor = autor;
+                    },
+                    guardarAutor(){
+                        if( this.autor.nombre=='' || 
+                    this.autor.codigo=='' ){
+                    console.log( 'Por favor ingrese los datos correspondientes' );
+                    return;
+            }
+            let store = this.abrirStore("tblautor", 'readwrite');
+            if( this.accion==='nuevo' ){
+                this.autor.idAutor = new Date().getTime().toString(16);//las cantidad milisegundos y lo convierte en hexadecimal   
+            }
+            let query = store.put( JSON.parse( JSON.stringify(this.autor) ));
+            query.onsuccess = resp=>{
+                this.nuevoAutor();
+                this.listarAutores();
+            };
+            query.onerror = err=>{
+                console.error('ERROR al guardar autor', err);
+            };
+              },
+                eliminarAutor(autor){
+                    if( confirm(`Esta seguro de eliminar el autor ${autor.nombre}?`) ){
+                        let store = this.abrirStore('tblautores', 'readwrite'),
+                            req = store.delete(autor.idAlumno);
+                        req.onsuccess = res=>{
+                            this.listarAutores();
+                        };
+                        eq.onerror = err=>{
+                            console.error('ERROR al eliminar autor');
+                        };
+                    }
+                },
+                listarAutores(){
+                    let store = this.abrirStore('tblautores', 'readonly'),
+                        data = store.getAll();
+                     data.onsuccess = resp=>{
+                        this.autores = data.result
+                            .filter(autores=>autor.nombre.toLowerCase().indexOf(this.buscar.toLowerCase())>-1 || 
+                                autor.codigo.indexOf(this.buscar)>-1);
+                    };
+                },
+
+            abrirBD(){
+                let indexDB = indexedDB.open('db_usis035821_Katerin', 1);
+                    indexDB.onupgradeneeded = e => {
+                        let req = e.target.result,
+
+                            tblautores = req.createObjectStore('tblautores', {
+                                keyPath: 'idAutor'
+                            });
+                    };
+                    indexDB.onsuccess = e => {
+                        db = e.target.result;
+                        this.listarAutores();
+                    };
+                    indexDB.onerror = e => {
+                        console.error('ERROR al crear, abrir la BD', e);
+                    };
+                },
+                abrirStore(store, modo) {
+                    let ltx = db.transaction(store, modo);
+                    return ltx.objectStore(store);
+                }
+            },
+        
+    created(){
+        this.abrirBD();
+       
+     }
+
+    }).mount('#app')
+</script>                           
+</body>
+</html>
